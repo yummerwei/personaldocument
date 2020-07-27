@@ -45,11 +45,29 @@ contains
 		character*(*), intent(in) :: filename
  		integer :: fn
         character*100 :: chtmp
-        character*20 :: ctype, cphi
-        real*8 :: Ef
+        character*20 :: ctype
+        real*8 :: 
 		call  First_Available_File_Pointer(fn)
 		open(fn, file=trim(filename), status="old")
-
+		read(fn,*)chtmp
+		call NASSERT(chtmp .eq. "Lattice Parameters:")
+		call NASSERT(chtmp .eq. "A=")
+		read(fn,*)Latt%a
+		call NASSERT(chtmp .eq. "B=")
+		read(fn,*)Latt%b
+		call NASSERT(chtmp .eq. "C=")
+		read(fn,*)Latt%c
+		call NASSERT(chtmp .eq. "p=")
+		read(fn,*)Latt%p
+		call NASSERT(chtmp .eq. "Hopping Parameters:")
+		call NASSERT(chtmp .eq. "t12=")
+		read(fn,*)Latt%t(1)
+		call NASSERT(chtmp .eq. "t13=")
+		read(fn,*)Latt%t(2)
+		call NASSERT(chtmp .eq. "t14=")
+		read(fn,*)Latt%t(3)
+		call NASSERT(chtmp .eq. "t23=")
+		read(fn,*)Latt%t(4)
 
     end subroutine Read_Lattice_info
     
