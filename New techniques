@@ -1,0 +1,4 @@
+Techniques with Gnuplot
+1. 画柱状图：
+ p 'ETOT.out' u 1:2:($1>=21? 0x006400:0x0000FF) w boxes t "Total Energy" lc rgb variable, '' u 1:2:1 with labels offset 0,-0.5
+ 
