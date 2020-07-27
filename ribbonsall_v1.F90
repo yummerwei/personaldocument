@@ -17,25 +17,7 @@ module GrapheneRibbons
     	real*8 :: t(4)  !Hopping Parameters
     	!t(1) = t12; t(2)=t13; t(3)=t14; t(4)=t23 ;t(5) = p
     end type Latt
-
-
-    type RibbonInfo_data
-      integer :: type   !type = 1: zigzag, type = 2: armchair
-      
-      real*8 :: latcons  !Unit: AA
-      real*8 :: a(2)     !primitive lattice vector
-      real*8 :: a2(2)    ! a2 vector to generate the ribbon
-      real*8 :: tau(2)   ! B atom bias
-      integer :: Num
-      real*8 :: gamma0   !nearest hopping energy. Unit: eV
-      
-      real*8, pointer :: phi(:, :)   ! scalar potential !eV
-      
-      integer :: Dim
-      integer, pointer :: idx(:, :), map(:, :)
-      
-      real*8 :: width    ! ribbon width between two outmost atoms, Unit:A      
-    end type RibbonInfo_data
+    
     
 contains
     
@@ -48,10 +30,10 @@ contains
         character*20 :: ctype
         real*8 :: 
 		call  First_Available_File_Pointer(fn)
-		open(fn, file=trim(filename), status="old")
+	open(fn, file=trim(filename), status="old")
 		read(fn,*)chtmp
 		call NASSERT(chtmp .eq. "Lattice Parameters:")
-		call NASSERT(chtmp .eq. "A=")
+		call NASSERT(chtmp .eq. "A=") !Unit AA
 		read(fn,*)Latt%a
 		call NASSERT(chtmp .eq. "B=")
 		read(fn,*)Latt%b
@@ -60,7 +42,7 @@ contains
 		call NASSERT(chtmp .eq. "p=")
 		read(fn,*)Latt%p
 		call NASSERT(chtmp .eq. "Hopping Parameters:")
-		call NASSERT(chtmp .eq. "t12=")
+		call NASSERT(chtmp .eq. "t12=") !Unit eV
 		read(fn,*)Latt%t(1)
 		call NASSERT(chtmp .eq. "t13=")
 		read(fn,*)Latt%t(2)
@@ -68,9 +50,9 @@ contains
 		read(fn,*)Latt%t(3)
 		call NASSERT(chtmp .eq. "t23=")
 		read(fn,*)Latt%t(4)
-
+    close(fn)
     end subroutine Read_Lattice_info
-    
+
     subroutine Read_Ribbon_info(rbi, filename)
         implicit none
         type(RibbonInfo_data), intent(inout) :: rbi
@@ -82,20 +64,6 @@ contains
         real*8 :: Ef
         
         integer :: i, j, m
-        
-        call  First_Available_File_Pointer(fn)
-        open(fn, file=trim(filename), status="old")
-        read(fn, *)chtmp, ctype
-        call NASSERT(chtmp .eq. "RibbonType:") 
-        call NASSERT(ctype .eq. "ZigZag" .or. ctype .eq. "ArmChair")
-        read(fn, *)chtmp, rbi%Num
-        call NASSERT(chtmp .eq. "RibbonWidthNum:")        
-        read(fn, *)chtmp, cphi
-        call NASSERT(chtmp .eq. "Phiy:")
-        if(cphi .eq. "HOMOElf") then
-          read(fn, *) Ef
-        endif
-        close(fn)        
         
         rbi%gamma0 = 2.7d0 !
         if(ctype .eq. "ZigZag")then
