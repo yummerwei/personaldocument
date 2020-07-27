@@ -47,8 +47,8 @@ contains
         character*100 :: chtmp
         character*20 :: ctype, cphi
         real*8 :: Ef
-		
 		call  First_Available_File_Pointer(fn)
+		open(fn, file=trim(filename), status="old")
 
 
     end subroutine Read_Lattice_info
