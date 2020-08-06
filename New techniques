@@ -1,4 +1,13 @@
 Techniques with Gnuplot
 1. 画柱状图：
  p 'ETOT.out' u 1:2:($1>=21? 0x006400:0x0000FF) w boxes t "Total Energy" lc rgb variable, '' u 1:2:1 with labels offset 0,-0.5
+2. 筛选需要的能带数据
+ a> Find the minimum of one set
+ awk '{if(NR>=3105 &&NR<=9441 &&NR%11==5) print $8}' wfn.out |awk 'BEGIN {min = 99} {if ($1+0 < min+0) min=$1} END {print "Min8=", min}'
+ b> Find the maximum of one set
+ awk '{if(NR>=3105 &&NR<=9441 &&NR%11==6) print $5}' wfn.out |awk 'BEGIN {max = 0} {if ($1+0 > max+0) max=$1} END {print "Max13=", max}'
+c> 从hr.dat中提取大于0.1的数据
+awk '{if(NR>45 && $6>=0.1 || $6<=-0.1) print $1"\t"$2"\t"$4"\t"$5"\t"$6}' alphaasp_hr.dat > para.out
+d> 并且排序
+sort para.out -k5r -k3
  
