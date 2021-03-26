@@ -11,3 +11,39 @@ awk '{if(NR>45 && $6>=0.1 || $6<=-0.1) print $1"\t"$2"\t"$4"\t"$5"\t"$6}' alphaa
 d> 并且排序
 sort para.out -k5r -k3
  
+3. 建立Huang-Rhys系数
+ a> 进行IBRION = 8计算获取OUTCAR，找到内部存在X Y Z DX DY DZ的表格
+ b> 获取基态和激发态的位置信息: PA.dat;PC.dat
+ c> 建构原子列表
+seq 1 63 > 0.dat #并修改表头
+paste 0.dat PA.dat PC.dat > PAC0.dat #并修改表头
+ d> 建构Re-Rg项
+awk '{print $1"\t"$5-$2"\t"$6-$3"\t"$7-$4}' PAC0.dat >  R.dat
+ e> 使用以下脚本
+ #!/bin/bash
+mkdir modes;cd modes;cp ../OUTCAR .
+for i in {1..189}
+do
+a=`expr 26359 + 66 \* $i `
+#echo 'a='$a
+cat > mode-${i}.dat << EOF
+      ux              uy              uz
+EOF
+awk -v a="$a" '{if(NR>=a && NR<=a+63) print $4"\t"$5"\t"$6}' OUTCAR >> mode-${i}.dat
+paste ../R.dat mode-${i}.dat > Pmode-${i}.dat
+rm -rf mode-${i}.dat
+cat > mode-${i}.dat << EOF
+Here is the title.
+EOF
+awk '{if(NR>1 && NR<65) print $1"\t"4.66219E-26"\t"$2*$5+$3*$6+$4*$7}' Pmode-${i}.dat > mode-${i}.dat
+b=`expr 190 - $i`
+#echo 'b='$b
+cat mode-${i}.dat|awk -v b=$b '{sum+=sqrt($2)*$3} END {print "Delta Q_" ""b"" "=", sum}' >> Q.dat
+done
+awk -F '= ' '{if(NR>=26423 && NR<=38895 && NR%66==23) print $2}' OUTCAR |awk '{print $1*10**12}' > omega.dat
+paste Q.dat omega.dat > Qomega.dat
+cat Qomega.dat|awk -F ' ' '{print $4*$3**2/2/1.054E-14}' > y.dat
+awk -F '= ' '{if(NR>=26423 && NR<=38895 && NR%66==23) print $2}' OUTCAR |awk '{print $7}' > x.dat
+paste x.dat y.dat > slambda.dat
+#rm -rf Pmode*
+
