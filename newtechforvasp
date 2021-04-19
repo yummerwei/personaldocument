@@ -1,0 +1,20 @@
+#!/bin/bash
+#提取占据数，并改变
+
+nu = `cat OUTCAR | grep -n 'spin component .' | awk -F ":" '{print $1}' |sed -n 1p` #上自旋所在首行
+nd = `cat OUTCAR | grep -n 'spin component .' | awk -F ":" '{print $1}' |sed -n 2p` #下自旋所在首行
+nk = `grep ' irreducible k-points' OUTCAR |head -n 1 | awk '{print $2}` #K点总数
+NBANDS = `cat OUTCAR | grep -n 'NBANDS' | awk -F "=" '{print $4}'` #Nbands
+#t = 0.05
+for ii in $(seq 1 `expr ${nk}`); 
+do 
+mud=`expr $nu + \( $NBANDS + 3 \) \* \( $ii - 1 \) + 4`
+muu=`expr $mud + $NBANDS - 1`
+mdd=`expr $nd + \( $NBANDS + 3 \) \* \( $ii - 1 \) + 4`
+mdu=`expr $mdd + $NBANDS - 1`
+awk "{if(NR>=$mud && NR<=$muu && \$1<=804 && \$1>=798) print $1}" OUTCAR | head -n 1
+awk "{if(NR>=$mdd && NR<=$mdu && \$1<=800 && \$1>=793) print $1}" OUTCAR | head -n 1
+done
+#awk "{if(NR>=$mud && NR<=$muu && \$3<=$t) print $1}" OUTCAR | head -n 1
+#awk "{if(NR>=$mdd && NR<=$mdu && \$3<=$t) print $1}" OUTCAR | head -n 1
+#done
